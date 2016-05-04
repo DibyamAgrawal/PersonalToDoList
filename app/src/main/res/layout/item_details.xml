@@ -11,6 +11,7 @@
         android:layout_height="100dp"
         android:layout_weight="30"
         android:hint="Type..."
+        android:id="@+id/message"
         android:text="" />
 
     <LinearLayout
@@ -32,6 +33,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:id="@+id/time"
             android:text="12:00 AM"
             android:layout_gravity="center"
             android:gravity="center"
@@ -57,6 +59,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:id="@+id/place"
             android:text="Church Street"
             android:layout_gravity="center"
             android:gravity="center"
@@ -73,7 +76,8 @@
         android:layout_height="0dp"
         android:layout_weight="15"
         android:layout_gravity="bottom"
-        android:text="Save" />
+        android:text="Save"
+        android:onClick="save"/>
 
 
     <!--<TimePicker-->

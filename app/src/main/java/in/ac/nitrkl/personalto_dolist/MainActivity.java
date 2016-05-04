@@ -3,6 +3,7 @@ package in.ac.nitrkl.personalto_dolist;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,10 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -29,12 +33,27 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
 
     private ListView todoList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         todoList = (ListView) findViewById(R.id.todoList);
+
+        todoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getApplicationContext(),itemDetails.class);
+                intent.putExtra("position",position);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+    public void btnClose(View v){
+        Toast.makeText(this,v.getContentDescription(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
