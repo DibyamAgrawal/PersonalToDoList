@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,29 +32,35 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
-
+    private DBAdapter myDB;
     private ListView todoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        myDB = new DBAdapter(this);
         todoList = (ListView) findViewById(R.id.todoList);
 
         todoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(),itemDetails.class);
-                intent.putExtra("position",position);
+                Intent intent = new Intent(getApplicationContext(), itemDetails.class);
+                intent.putExtra("position", position);
                 startActivity(intent);
             }
         });
 
     }
 
-    public void btnClose(View v){
-        Toast.makeText(this,v.getContentDescription(),Toast.LENGTH_SHORT).show();
+    public void btnClose(View v) {
+//        myDB.open();
+//        int position = 0;
+//        Cursor cursor = myDB.getAllRows();
+//        cursor.moveToPosition(position);
+//        cursor=myDB.getRow(cursor.getInt(0));
+        Toast.makeText(this, v.getContentDescription(), Toast.LENGTH_SHORT).show();
+//        myDB.close();
     }
 
     @Override
@@ -79,6 +86,9 @@ public class MainActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this,itemDetails.class);
+            intent.putExtra("add",true);
+            startActivity(intent);
             return true;
         }
 
@@ -87,50 +97,61 @@ public class MainActivity extends Activity {
 }
 
 
+class singleRow {
+    long id;
+    String message, time, location;
 
-class singleRow{
-    int id;
-    String message,time,place;
-    singleRow(int id,String message,String time,String place){
-        this.id=id;
-        this.message=message;
-        this.time=time;
-        this.place=place;
+    singleRow(long id, String message, String time, String location) {
+        this.id = id;
+        this.message = message;
+        this.time = time;
+        this.location = location;
     }
 }
-
-
 
 
 class customList extends BaseAdapter {
     ArrayList<singleRow> list;
     Context context;
-    TextView message,time,place;
+    TextView message, time, location;
     ImageView close;
-
+    DBAdapter myDB;
+    int count=0;
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    customList(Context c){
+    customList(Context c) {
         list = new ArrayList<singleRow>();
-        this.context=c;
+        this.context = c;
 
-        int[] id = new int[100];
-        String[] message = new String[100];
-        String[] time = new String[100];
-        String[] place = new String[100];
+        updateList(c);
+    }
 
-        for(int i=0;i<10;i++){
-            id[i] = i;
-            message[i] = "TEXT" +i;
-            time[i] = ""+i+":00 AM";
-            place[i] = "Street "+i;
+    private void updateList(Context c) {
+        myDB = new DBAdapter(c);
+        myDB.open();
+        long[] id = new long[1000];
+        String[] message = new String[1000];
+        String[] time = new String[1000];
+        String[] location= new String[1000];
+
+        Cursor cursor = myDB.getAllRows();
+        if (cursor.moveToFirst()) {
+            count = 0;
+            do {
+                id[count]=cursor.getInt(0);
+                message[count]=cursor.getString(1);
+                time[count]=cursor.getString(2);
+                location[count]=cursor.getString(3);
+                count++;
+            } while (cursor.moveToNext());
         }
-
-
-        for(int i=0;i<10;i++){
-            singleRow obj = new singleRow(id[i],message[i],time[i],place[i]);
+        list.clear();
+        for (int i = 0; i < count; i++) {
+            singleRow obj = new singleRow(id[i], message[i], time[i], location[i]);
             list.add(obj);
         }
+        myDB.close();
     }
+
 
     @Override
     public int getCount() {
@@ -145,24 +166,40 @@ class customList extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
 
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View row = inflater.inflate(R.layout.list_row, parent, false);
 
-        message = (TextView)row.findViewById(R.id.message);
-        time = (TextView)row.findViewById(R.id.time);
-        place = (TextView)row.findViewById(R.id.place);
-        close = (ImageView)row.findViewById(R.id.close);
+        message = (TextView) row.findViewById(R.id.message);
+        time = (TextView) row.findViewById(R.id.time);
+        location = (TextView) row.findViewById(R.id.location);
+        close = (ImageView) row.findViewById(R.id.close);
 
         message.setText(list.get(position).message);
         time.setText(list.get(position).time);
-        place.setText(list.get(position).place);
-        close.setContentDescription(list.get(position).id+"");
+        location.setText(list.get(position).location);
+        close.setContentDescription(list.get(position).id + "");
+
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myDB.open();
+                Cursor cursor = myDB.getAllRows();
+                cursor.moveToPosition(position);
+//                cursor=myDB.getRow(cursor.getInt(0));
+                myDB.deleteRow(cursor.getInt(0));
+                myDB.close();
+                updateList(context);
+                notifyDataSetChanged();
+            }
+        });
 
         return row;
     }
+
 }
