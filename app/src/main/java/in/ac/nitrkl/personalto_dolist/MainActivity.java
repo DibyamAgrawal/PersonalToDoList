@@ -145,10 +145,12 @@ class customList extends BaseAdapter {
             } while (cursor.moveToNext());
         }
         list.clear();
-        for (int i = 0; i < count; i++) {
+        int i;
+        for (i = 0; i < count; i++) {
             singleRow obj = new singleRow(id[i], message[i], time[i], location[i]);
             list.add(obj);
         }
+
         myDB.close();
     }
 

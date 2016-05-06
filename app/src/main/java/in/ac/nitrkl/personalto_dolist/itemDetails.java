@@ -67,7 +67,6 @@ public class itemDetails extends Activity {
             cursor.moveToPosition(position);
             cursor=myDB.getRow(cursor.getInt(0));
             String t = cursor.getString(2);
-            int l = t.length();
 
             message.setText(cursor.getString(1));
             time.setText(t.substring(10,19));
@@ -92,7 +91,7 @@ public class itemDetails extends Activity {
             return new DatePickerDialog(this, myDateListener, year, month, day);
         }
         if (id == 2) {
-            return new TimePickerDialog(this, myTimeListener, hour,minute,true);
+            return new TimePickerDialog(this, myTimeListener, hour,minute,false);
         }
         return null;
     }
