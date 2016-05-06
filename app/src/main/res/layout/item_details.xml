@@ -56,7 +56,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:onClick="setDate"
-            android:src="@drawable/clock1" />
+            android:src="@drawable/calendar" />
 
         <TextView
             android:layout_width="0dp"
